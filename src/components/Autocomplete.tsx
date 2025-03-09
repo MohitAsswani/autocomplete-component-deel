@@ -15,10 +15,11 @@ export const Autocomplete: FC = () => {
 
     const { filterUsers, isLoading, error } = useUsers();
 
-    // Use custom hook for outside click
+    // Use custom hook for outside click to close the dropdown
     useOutsideClick(containerRef, () => setIsOpen(false));
 
     // Handle input changes with debounce
+    // Debounce the input value to avoid too many re-renders
     useEffect(() => {
         const handler = async () => {
             if (!inputValue.trim()) {
@@ -40,7 +41,7 @@ export const Autocomplete: FC = () => {
         return () => clearTimeout(timer);
     }, [inputValue, filterUsers]);
 
-    // Keyboard navigation
+    // Keyboard navigation for suggestions list
     const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
         if (!isOpen) return;
 

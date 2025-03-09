@@ -32,7 +32,8 @@ export const useUsers = (): UseUsersReturn => {
 
   const filterUsers = useCallback(
     async (query: string) => {
-      await new Promise(resolve => setTimeout(resolve, 300)); // Simulate API delay
+      // Added API delay for smoother experience
+      await new Promise(resolve => setTimeout(resolve, 300)); 
       return allUsers.filter(user =>
         Object.values(user).some(value =>
           value.toString().toLowerCase().includes(query.toLowerCase())
