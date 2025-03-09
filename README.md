@@ -33,8 +33,8 @@ The component provides a user search interface with the following features:
 
 ```bash
 # Clone the repository
-git clone [your-repo-url]
-cd [your-repo-name]
+git clone https://github.com/MohitAsswani/autocomplete-component-deel
+cd autocomplete-component-deel
 
 # Install dependencies
 npm install
