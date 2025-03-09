@@ -9,91 +9,106 @@ A modern, accessible, and customizable autocomplete component built with React a
 - 💅 Modern and clean UI with CSS Modules
 - ♿ Fully accessible (WAI-ARIA compliant)
 - 🎯 Highlighted search matches
+- 📱 Responsive design
 - 🔄 Loading states and error handling
 - 🎨 Customizable styling
 - 📦 TypeScript support
+- 🧹 Clean code with proper error boundaries
+- 🔍 Multi-term search support
+- 📱 Touch device support
 
-## Setup
+## Demo
+
+The component provides a user search interface with the following features:
+
+- Search by name, email, or username
+- Real-time suggestions as you type
+- Keyboard navigation (up/down arrows, enter to select, escape to close)
+- Touch-friendly interface
+- Highlighted matching text in suggestions
+- Loading and error states
+- Responsive design that works on all screen sizes
+
+## Installation
 
 ```bash
+# Clone the repository
+git clone [your-repo-url]
+cd [your-repo-name]
+
 # Install dependencies
 npm install
 
-# Run development server
+# Start development server
 npm run dev
 
 # Build for production
 npm run build
 ```
 
+## Dependencies
+
+- React 18+
+- TypeScript 5+
+- CSS Modules
+- Vite (for development and building)
+
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── Autocomplete.tsx        # Main component
-│   ├── Autocomplete.module.css # Styles
-│   ├── HighlightText.tsx      # Text highlighting component
-│   └── SuggestionItem.tsx     # Individual suggestion component
+│   ├── Autocomplete.tsx        # Main component with search logic
+│   ├── Autocomplete.module.css # Scoped styles
+│   ├── HighlightText.tsx      # Text highlighting with regex
+│   └── SuggestionItem.tsx     # Individual suggestion with memo
 ├── hooks/
-│   ├── useOutsideClick.ts     # Click outside handler
-│   └── useUsers.ts            # User data and filtering logic
+│   ├── useOutsideClick.ts     # Click outside detection
+│   └── useUsers.ts            # User data fetching and filtering
 ├── types/
 │   └── user.ts                # TypeScript interfaces
 └── main.tsx                   # Entry point
 ```
 
-## Component Usage
+## Implementation Details
 
-```tsx
-import { Autocomplete } from "./components/Autocomplete";
+### Component Architecture
 
-function App() {
-  return <Autocomplete />;
-}
-```
+- **Autocomplete**: Main component managing search state and UI
+- **SuggestionItem**: Memoized component for rendering individual results
+- **HighlightText**: Utility component for highlighting matched text
 
-## Features in Detail
+### Custom Hooks
 
-### Keyboard Navigation
+- **useUsers**:
+  - Manages user data fetching
+  - Implements search functionality
+  - Handles API errors and loading states
+  - Uses AbortController for cleanup
+- **useOutsideClick**:
+  - Handles clicks outside the component
+  - Supports both mouse and touch events
+  - Includes enable/disable functionality
 
-- `↑` / `↓`: Navigate through suggestions
-- `Enter`: Select the highlighted suggestion
-- `Escape`: Close the suggestions dropdown
+### Performance Optimizations
 
-### Search Features
+- Debounced search (300ms delay)
+- Memoized components and callbacks
+- Proper cleanup of async operations
+- Efficient text highlighting algorithm
+- Optimized re-renders with React.memo
 
-- Debounced search (300ms)
-- Highlights matching text in suggestions
-- Shows loading state during search
-- Handles errors gracefully
-- No results state
+### Accessibility Features
 
-### Accessibility
-
-- Proper ARIA attributes
 - Semantic HTML structure
 - Keyboard navigation support
-- Screen reader friendly
+- Focus management
+- Touch device support
 
-### Styling
+### Error Handling
 
-- Modern and clean design
-- Responsive layout
-- Smooth transitions
-- Focus and hover states
-- CSS Modules for style encapsulation
-
-## Development
-
-The component is built with modern React practices including:
-
-- Functional components
-- React hooks
-- TypeScript for type safety
-- CSS Modules for styling
-- Custom hooks for reusable logic
-
-## Contributing
-
-Feel free to submit issues and enhancement requests!
+- API error handling
+- Search query validation
+- Regex error protection
+- Network request cleanup
+- Proper error messages
