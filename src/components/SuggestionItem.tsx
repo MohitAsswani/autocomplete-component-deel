@@ -10,7 +10,6 @@ interface SuggestionItemProps {
     onSelect: (name: string) => void;
 }
 
-// Memoize the component to prevent unnecessary re-renders
 export const SuggestionItem: FC<SuggestionItemProps> = memo(({
     user,
     isSelected,
@@ -24,17 +23,12 @@ export const SuggestionItem: FC<SuggestionItemProps> = memo(({
         role="option"
         aria-selected={isSelected}
     >
-        {/* Main user info */}
         <div className={styles.primaryText}>
             <HighlightText text={user.name} query={query} />
         </div>
-
-        {/* Contact info */}
         <div className={styles.secondaryText}>
             <HighlightText text={user.email} query={query} />
         </div>
-
-        {/* Username */}
         <div className={styles.tertiaryText}>
             <HighlightText text={`@${user.username}`} query={query} />
         </div>

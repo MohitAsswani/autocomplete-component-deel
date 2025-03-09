@@ -9,7 +9,7 @@ interface UseUsersReturn {
 }
 
 const API_URL = 'https://jsonplaceholder.typicode.com/users';
-const SEARCH_DELAY = 300; // milliseconds
+const SEARCH_DELAY = 300;
 
 export const useUsers = (): UseUsersReturn => {
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -59,7 +59,6 @@ export const useUsers = (): UseUsersReturn => {
 
     fetchUsers();
 
-    // Cleanup on unmount
     return () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -70,7 +69,7 @@ export const useUsers = (): UseUsersReturn => {
   // Filter users based on search query
   const filterUsers = useCallback(
     async (query: string): Promise<User[]> => {
-      // Simulate API delay for better UX
+      // Added API delay for better UX 
       await new Promise(resolve => setTimeout(resolve, SEARCH_DELAY));
 
       const searchTerms = query.toLowerCase().split(' ');
@@ -82,7 +81,6 @@ export const useUsers = (): UseUsersReturn => {
           user.username
         ].join(' ').toLowerCase();
 
-        // Match all search terms
         return searchTerms.every(term => searchableText.includes(term));
       });
     },

@@ -6,23 +6,18 @@ import { SuggestionItem } from './SuggestionItem';
 import styles from './Autocomplete.module.css';
 
 export const Autocomplete: FC = () => {
-    // State for managing input and suggestions
     const [searchTerm, setSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState<User[]>([]);
     const [showDropdown, setShowDropdown] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
 
-    // Refs for DOM elements
     const searchBoxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Custom hooks
     const { filterUsers, isLoading, error } = useUsers();
     useOutsideClick(searchBoxRef, () => setShowDropdown(false));
 
-    // Search handler with debounce
     useEffect(() => {
-        // Don't search if input is empty
         if (!searchTerm?.trim()) {
             setSuggestions([]);
             setShowDropdown(false);
@@ -51,17 +46,16 @@ export const Autocomplete: FC = () => {
     const handleKeyboardNavigation = (e: KeyboardEvent<HTMLInputElement>) => {
         if (!showDropdown) return;
 
-        // Handle keyboard navigation
         switch (e.key) {
             case 'ArrowDown':
-                e.preventDefault(); // Prevent cursor movement
+                e.preventDefault();
                 setActiveIndex(prev =>
                     prev < suggestions.length - 1 ? prev + 1 : prev
                 );
                 break;
 
             case 'ArrowUp':
-                e.preventDefault(); // Prevent cursor movement
+                e.preventDefault();
                 setActiveIndex(prev => (prev > 0 ? prev - 1 : -1));
                 break;
 
@@ -112,28 +106,24 @@ export const Autocomplete: FC = () => {
 
                 {showDropdown && (
                     <div className={styles.suggestionsList} role="listbox">
-                        {/* Loading state */}
                         {isLoading && (
                             <div className={styles.statusMessage}>
                                 Searching...
                             </div>
                         )}
 
-                        {/* Error state */}
                         {error && (
                             <div className={`${styles.statusMessage} ${styles.error}`}>
                                 {error}
                             </div>
                         )}
 
-                        {/* Empty results */}
                         {!isLoading && !error && suggestions.length === 0 && (
                             <div className={styles.statusMessage}>
                                 No matching users found
                             </div>
                         )}
 
-                        {/* Suggestions list */}
                         {suggestions.map((user, index) => (
                             <SuggestionItem
                                 key={user.id}
