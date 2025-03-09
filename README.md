@@ -1,6 +1,7 @@
 # TypeScript React Autocomplete Component
 
 A modern, accessible, and customizable autocomplete component built with React and TypeScript. This component provides a rich user experience with features like keyboard navigation, debounced search, and highlighted search results.
+![image](https://github.com/user-attachments/assets/7b28f52a-247e-40a2-bd61-4853dab7b086)
 
 ## Features
 
