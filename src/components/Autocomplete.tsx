@@ -6,109 +6,141 @@ import { SuggestionItem } from './SuggestionItem';
 import styles from './Autocomplete.module.css';
 
 export const Autocomplete: FC = () => {
-    const [inputValue, setInputValue] = useState('');
+    // State for managing input and suggestions
+    const [searchTerm, setSearchTerm] = useState('');
     const [suggestions, setSuggestions] = useState<User[]>([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState(-1);
-    const containerRef = useRef<HTMLDivElement>(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    // Refs for DOM elements
+    const searchBoxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
+    // Custom hooks
     const { filterUsers, isLoading, error } = useUsers();
+    useOutsideClick(searchBoxRef, () => setShowDropdown(false));
 
-    // Use custom hook for outside click to close the dropdown
-    useOutsideClick(containerRef, () => setIsOpen(false));
-
-    // Handle input changes with debounce
-    // Debounce the input value to avoid too many re-renders
+    // Search handler with debounce
     useEffect(() => {
-        const handler = async () => {
-            if (!inputValue.trim()) {
-                setSuggestions([]);
-                setIsOpen(false);
-                return;
-            }
+        // Don't search if input is empty
+        if (!searchTerm?.trim()) {
+            setSuggestions([]);
+            setShowDropdown(false);
+            return;
+        }
 
+        let isSubscribed = true;
+        const searchTimeout = setTimeout(async () => {
             try {
-                const results = await filterUsers(inputValue);
-                setSuggestions(results);
-                setIsOpen(true);
+                const results = await filterUsers(searchTerm);
+                if (isSubscribed) {
+                    setSuggestions(results);
+                    setShowDropdown(true);
+                }
             } catch (err) {
-                console.error('Error filtering results:', err);
+                console.warn('Search failed:', err);
             }
+        }, 300);
+
+        return () => {
+            isSubscribed = false;
+            clearTimeout(searchTimeout);
         };
+    }, [searchTerm, filterUsers]);
 
-        const timer = setTimeout(handler, 300);
-        return () => clearTimeout(timer);
-    }, [inputValue, filterUsers]);
+    const handleKeyboardNavigation = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (!showDropdown) return;
 
-    // Keyboard navigation for suggestions list
-    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (!isOpen) return;
-
+        // Handle keyboard navigation
         switch (e.key) {
             case 'ArrowDown':
-                setSelectedIndex(prev =>
+                e.preventDefault(); // Prevent cursor movement
+                setActiveIndex(prev =>
                     prev < suggestions.length - 1 ? prev + 1 : prev
                 );
                 break;
+
             case 'ArrowUp':
-                setSelectedIndex(prev => (prev > 0 ? prev - 1 : -1));
+                e.preventDefault(); // Prevent cursor movement
+                setActiveIndex(prev => (prev > 0 ? prev - 1 : -1));
                 break;
+
             case 'Enter':
-                if (selectedIndex >= 0 && suggestions[selectedIndex]) {
-                    handleSelect(suggestions[selectedIndex].name);
+                if (activeIndex >= 0 && suggestions[activeIndex]) {
+                    selectUser(suggestions[activeIndex].name);
                 }
                 break;
+
             case 'Escape':
-                setIsOpen(false);
+                setShowDropdown(false);
+                setActiveIndex(-1);
                 break;
         }
     };
 
-    const handleSelect = (name: string) => {
-        setInputValue(name);
-        setIsOpen(false);
+    const selectUser = (name: string) => {
+        setSearchTerm(name);
+        setShowDropdown(false);
+        setActiveIndex(-1);
+        inputRef.current?.blur();
     };
 
     return (
         <div className={styles.container}>
-            <div className={styles.wrapper} ref={containerRef}>
+            <div className={styles.wrapper} ref={searchBoxRef}>
                 <label htmlFor="user-search" className={styles.label}>
-                    Search Users
+                    Find Users
                 </label>
+
                 <input
                     id="user-search"
                     ref={inputRef}
                     type="text"
-                    value={inputValue}
-                    onChange={(e) => {
-                        setInputValue(e.target.value);
-                        setSelectedIndex(-1);
+                    value={searchTerm}
+                    onChange={e => {
+                        setSearchTerm(e.target.value);
+                        setActiveIndex(-1);
                     }}
-                    onFocus={() => setIsOpen(true)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Start typing to search users..."
+                    onFocus={() => setShowDropdown(true)}
+                    onKeyDown={handleKeyboardNavigation}
+                    placeholder="Type a name, email, or username..."
                     aria-autocomplete="list"
-                    aria-expanded={isOpen}
+                    aria-expanded={showDropdown}
                     aria-busy={isLoading}
                     className={styles.input}
                 />
 
-                {isOpen && (
+                {showDropdown && (
                     <div className={styles.suggestionsList} role="listbox">
-                        {isLoading && <div className={styles.statusMessage}>Loading...</div>}
-                        {error && <div className={`${styles.statusMessage} ${styles.error}`}>{error}</div>}
-                        {!isLoading && !error && suggestions.length === 0 && (
-                            <div className={styles.statusMessage}>No results found</div>
+                        {/* Loading state */}
+                        {isLoading && (
+                            <div className={styles.statusMessage}>
+                                Searching...
+                            </div>
                         )}
 
+                        {/* Error state */}
+                        {error && (
+                            <div className={`${styles.statusMessage} ${styles.error}`}>
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Empty results */}
+                        {!isLoading && !error && suggestions.length === 0 && (
+                            <div className={styles.statusMessage}>
+                                No matching users found
+                            </div>
+                        )}
+
+                        {/* Suggestions list */}
                         {suggestions.map((user, index) => (
                             <SuggestionItem
                                 key={user.id}
                                 user={user}
-                                isSelected={index === selectedIndex}
-                                query={inputValue}
-                                onSelect={handleSelect}
+                                isSelected={index === activeIndex}
+                                query={searchTerm}
+                                onSelect={selectUser}
                             />
                         ))}
                     </div>
